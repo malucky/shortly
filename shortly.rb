@@ -58,7 +58,7 @@ get '/' do
 end
 
 get '/links' do
-    links = Link.order("created_at DESC")
+    links = Link.order("visits DESC")
     links.map { |link|
         link.as_json.merge(base_url: request.base_url)
     }.to_json
@@ -66,7 +66,15 @@ end
 
 post '/links' do
     data = JSON.parse request.body.read
-    uri = URI(data['url'])
+    if /^http:\/\//.match data['url']
+      puts 'not appending http'
+      data = data['url']
+    else
+      puts 'appending http'
+      data = 'http://' + data['url']
+    end
+    uri = URI(data)
+    puts uri
     raise Sinatra::NotFound unless uri.absolute?
     link = Link.find_by_url(uri.to_s) ||
            Link.create( url: uri.to_s, title: get_url_title(uri) )

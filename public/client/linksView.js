@@ -9,6 +9,7 @@ Shortly.LinksView = Backbone.View.extend({
 
   render: function() {
     this.$el.empty();
+    this.$el.append('<label>Filter by: </label><input type="checkbox" class="sortCheckBox"></input>');
     return this;
   },
 
