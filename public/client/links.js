@@ -1,6 +1,17 @@
 Shortly.Links = Backbone.Collection.extend({
 
   model: Shortly.Link,
-  url: '/links'
+  url: '/links',
+
+  setComparator: function(name) {
+
+    this.comparator = function(a, b) {
+      if(a.get(name) > b.get(name)){
+        return false;
+      } else {
+        return true;
+      }
+    };
+  }
 
 });
