@@ -4,9 +4,8 @@ Shortly.Links = Backbone.Collection.extend({
   url: '/links',
 
   setComparator: function(name) {
-
     this.comparator = function(a, b) {
-      if(a.get(name) > b.get(name)){
+      if(Number(a.get(name)) > Number(b.get(name))){
         return false;
       } else {
         return true;

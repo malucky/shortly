@@ -18,7 +18,7 @@ Shortly.LinksView = Backbone.View.extend({
     this.$el.append('<label>Filter by: </label>\
                       <form class="filterLinks">\
                       <input type="radio" name="sortBy" value="visits" checked>Visits</input>\
-                      <input type="radio" name="sortBy" value="created_at">Time</input>\
+                      <input type="radio" name="sortBy" value="lastclicked">Time</input>\
                       <input type="text" name="searchLinks" placeholder="search links"></input>\
                       </form>\
                       <div class="linksDisplay"></div>');
@@ -44,7 +44,7 @@ Shortly.LinksView = Backbone.View.extend({
     this.collection.sort();
 
     this.$el.find('.linksDisplay').html('');
-    this.addAll();
+    this.filterLinks();
   },
 
   filterLinks: function(){

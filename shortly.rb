@@ -36,6 +36,8 @@ ActiveRecord::Base.include_root_in_json = false
 # http://guides.rubyonrails.org/association_basics.html
 
 class Link < ActiveRecord::Base
+    attr_accessor :updated_at
+
     has_many :clicks
 
     validates :url, presence: true
@@ -84,6 +86,7 @@ end
 get '/:url' do
     link = Link.find_by_code params[:url]
     raise Sinatra::NotFound if link.nil?
+    link.update_attribute(:lastclicked, Time.new.to_i)
     link.clicks.create!
     redirect link.url
 end
