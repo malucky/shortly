@@ -17,9 +17,13 @@ window.Shortly = Backbone.View.extend({
   },
 
   initialize: function(){
+    this.linksView;
+
     console.log( "Shortly is running" );
     $('body').append(this.render().el);
     this.renderIndexView(); // default view
+
+    this.linksView.collection.on('renderClickView', this.renderClicksView, this);
   },
 
   render: function(){
@@ -30,8 +34,8 @@ window.Shortly = Backbone.View.extend({
   renderIndexView: function(e){
     e && e.preventDefault();
     var links = new Shortly.Links();
-    var linksView = new Shortly.LinksView( {collection: links} );
-    this.$el.find('#container').html( linksView.render().el );
+    this.linksView = new Shortly.LinksView( {collection: links} );
+    this.$el.find('#container').html( this.linksView.render().el );
     this.updateNav('index');
   },
 
@@ -40,6 +44,19 @@ window.Shortly = Backbone.View.extend({
     var linkCreateView = new Shortly.LinkCreateView();
     this.$el.find('#container').html( linkCreateView.render().el );
     this.updateNav('create');
+  },
+
+  renderClicksView: function(base_url, code){
+    // console.log(base_url+'/clicks/'+code);
+    // var clicks = new Shortly.Clicks({url: })
+    var url = base_url+'/clicks/'+code;
+    var clicks = new Shortly.Clicks();
+    clicks.url = url;
+    var that = this;
+    clicks.fetch({success: function(){
+      var clicksView = new Shortly.ClicksView({collection: clicks});
+      that.$el.find('#container').html( clicksView.render().el);
+    }});
   },
 
   updateNav: function(className){
