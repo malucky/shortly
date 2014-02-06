@@ -141,6 +141,11 @@ get '/clicks/:code' do
     clicks.to_json
 end
 
+get '/details/:code' do
+    erb :layout
+    # erb :index
+end
+
 get '/:url', :loggin_in? => :user do
     link = Link.find_by_code params[:url]
     raise Sinatra::NotFound if link.nil?

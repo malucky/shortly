@@ -17,13 +17,13 @@ window.Shortly = Backbone.View.extend({
   },
 
   initialize: function(){
-    this.linksView;
-
     console.log( "Shortly is running" );
     $('body').append(this.render().el);
     this.renderIndexView(); // default view
 
-    this.linksView.collection.on('renderClickView', this.renderClicksView, this);
+    Backbone.history.start({pushState: true});
+    this.router = new Shortly.Router();
+    this.router.on('renderIndex', this.renderIndexView, this);
   },
 
   render: function(){
@@ -32,9 +32,11 @@ window.Shortly = Backbone.View.extend({
   },
 
   renderIndexView: function(e){
+    console.log('rendering index');
     e && e.preventDefault();
     var links = new Shortly.Links();
     this.linksView = new Shortly.LinksView( {collection: links} );
+    this.linksView.collection.on('renderClickView', this.renderClicksView, this);
     this.$el.find('#container').html( this.linksView.render().el );
     this.updateNav('index');
   },
@@ -47,12 +49,12 @@ window.Shortly = Backbone.View.extend({
   },
 
   renderClicksView: function(base_url, code, title){
-    // console.log(base_url+'/clicks/'+code);
-    // var clicks = new Shortly.Clicks({url: })
+    console.log('render me!');
     var url = base_url+'/clicks/'+code;
     var clicks = new Shortly.Clicks();
     clicks.url = url;
     var that = this;
+    this.router.navigate("details/"+code);
     clicks.fetch({success: function(){
       var clicksView = new Shortly.ClicksView({collection: clicks});
       that.$el.find('#container').html( clicksView.render(title).el);
