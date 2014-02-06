@@ -16,12 +16,12 @@ require 'open-uri'
 set :public_folder, File.dirname(__FILE__) + '/public'
 set :sessions => true
 
-set :sessions => true
-
 register do
-  def auth (user)
+  def auth (type)
     condition do
-      redirect "/login"
+        unless User.find_by_password_hash(session[:id])
+            redirect "/login"
+        end
     end
   end
 end
@@ -33,6 +33,9 @@ configure :development, :production do
      )
 end
 
+before do
+    @sessionId = session[:id]
+end
 # Handle potential connection pool timeout issues
 after do
     ActiveRecord::Base.connection.close
@@ -73,7 +76,11 @@ end
 
 post '/createAccount' do
     password_salt = 'abc'
-    User.create(username: params[:username], password_hash: hashingFunc(params[:password]+password_salt), password_salt: password_salt, hashId: 'a')
+    password_hash = hashingFunc(params[:password], password_salt)
+    User.create(username: params[:username], password_hash: password_hash, password_salt: password_salt, hashId: 'a')
+    session[:id] = password_hash
+    # session
+    password_hash
 end
 
 post '/login' do
@@ -86,6 +93,8 @@ end
 
 
 get '/', :auth => :user do
+    puts session[:id].inspect
+    # puts request.cookies
     erb :index
 end
 
@@ -99,10 +108,8 @@ end
 post '/links' do
     data = JSON.parse request.body.read
     if /^http:\/\//.match data['url']
-      puts 'not appending http'
       data = data['url']
     else
-      puts 'appending http'
       data = 'http://' + data['url']
     end
     uri = URI(data)
@@ -144,6 +151,6 @@ def get_url_title url
     result.nil? ? "" : result[1]
 end
 
-def hashingFunc password
-    password
+def hashingFunc password, salt
+    password + salt
 end
