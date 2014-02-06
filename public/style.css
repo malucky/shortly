@@ -139,3 +139,17 @@ form input[type=text] {
 .creator .message {
   clear: both;
 }
+
+.timestamp li {
+  font-size: 12px;
+  margin-left: 40px;
+  color: rgb(175, 99, 111);
+}
+
+.timestamp {
+  border-top: 1px solid black;
+  font-size: 15px;
+  margin-left: 0;
+  padding: 5;
+  color: #1A4F68;
+}

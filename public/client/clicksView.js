@@ -10,19 +10,43 @@ Shortly.ClicksView = Backbone.View.extend({
     // this.collection.fetch();
   },
 
-  render: function() {
+  render: function(title) {
+    var timeHash = this.createTimeIntervals(this.collection.pluck('created_at'));
+
     this.$el.empty();
-    var that = this;
-    window.that = this;
-    console.log(this);
-    console.log(this.collection.models);
-    _.each(this.collection.models, function(click){
-      console.log(click.get('created_at'));
-      that.$el.append(click.get('created_at'));
-      that.$el.append('<br>')
-    });
+    this.$el.append("<h2>"+title+"</h2>")
+
+    for(var timestamp in timeHash) {
+      this.$el.append('<ol class="timestamp">'+timestamp+'</ol>');
+      for(var i = 0; i < timeHash[timestamp].length; i++) {
+        this.$el.find('ol').last().append('<li>'+timeHash[timestamp][i]+'</li>');
+      }
+    }
 
     return this;
+  },
+
+  createTimeIntervals: function(timestamps){
+    if(timestamps.length === 0) return;
+
+    var fiveMin = 5*60*1000;
+    var endTime = new Date(timestamps[timestamps.length-1]);
+    var startTime = new Date(endTime - fiveMin);
+    var timeHash = {};
+    timeHash[startTime+'  -  '+endTime] = [endTime];
+
+    for (var i = timestamps.length - 2; i >= 0; i--) {
+      var timestamp = new Date(timestamps[i]);
+      if (timestamp < startTime) {
+        endTime = timestamp;
+        startTime = new Date(endTime - fiveMin);
+        timeHash[startTime+'  -  '+endTime] = [timestamp];
+      } else {
+        timeHash[startTime+'  -  '+endTime].push(timestamp);
+      }
+    }
+
+    return timeHash;
   },
 
   addAll: function(filteredLinks){

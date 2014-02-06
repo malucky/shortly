@@ -46,7 +46,7 @@ window.Shortly = Backbone.View.extend({
     this.updateNav('create');
   },
 
-  renderClicksView: function(base_url, code){
+  renderClicksView: function(base_url, code, title){
     // console.log(base_url+'/clicks/'+code);
     // var clicks = new Shortly.Clicks({url: })
     var url = base_url+'/clicks/'+code;
@@ -55,7 +55,7 @@ window.Shortly = Backbone.View.extend({
     var that = this;
     clicks.fetch({success: function(){
       var clicksView = new Shortly.ClicksView({collection: clicks});
-      that.$el.find('#container').html( clicksView.render().el);
+      that.$el.find('#container').html( clicksView.render(title).el);
     }});
   },
 
