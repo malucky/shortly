@@ -7,11 +7,24 @@ require 'uri'
 require 'open-uri'
 # require 'nokogiri'
 
+
+
 ###########################################################
 # Configuration
 ###########################################################
 
 set :public_folder, File.dirname(__FILE__) + '/public'
+set :sessions => true
+
+set :sessions => true
+
+register do
+  def auth (user)
+    condition do
+      redirect "/login"
+    end
+  end
+end
 
 configure :development, :production do
     ActiveRecord::Base.establish_connection(
@@ -48,14 +61,31 @@ class Link < ActiveRecord::Base
 end
 
 class Click < ActiveRecord::Base
-    belongs_to :link, counter_cache: :visits
+    belongs_to :link, counter_cache: :visits, touch: true
+end
+
+class User < ActiveRecord::Base
 end
 
 ###########################################################
 # Routes
 ###########################################################
 
-get '/' do
+post '/createAccount' do
+    password_salt = 'abc'
+    User.create(username: params[:username], password_hash: hashingFunc(params[:password]+password_salt), password_salt: password_salt, hashId: 'a')
+end
+
+post '/login' do
+    puts 'hello'
+end
+
+get '/login' do
+    erb :login
+end
+
+
+get '/', :auth => :user do
     erb :index
 end
 
@@ -112,4 +142,8 @@ def get_url_title url
     # Nokogiri::HTML.parse( read_url_head url ).title
     result = read_url_head(url).match(/<title>(.*)<\/title>/)
     result.nil? ? "" : result[1]
+end
+
+def hashingFunc password
+    password
 end
