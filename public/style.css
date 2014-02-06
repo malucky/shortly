@@ -81,7 +81,15 @@ h1 {
 }
 
 .link .title {
+  font-size: 20px;
   font-weight: 600;
+}
+
+.link .title:hover {
+  font-size: 20px;
+  font-weight: 600;
+  color: blue;
+  text-decoration: underline;
 }
 
 .link .original {

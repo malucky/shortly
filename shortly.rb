@@ -17,7 +17,7 @@ set :public_folder, File.dirname(__FILE__) + '/public'
 set :sessions => true
 
 register do
-  def auth (type)
+  def loggin_in? (type)
     condition do
         unless User.find_by_password_hash(session[:id])
             redirect "/login"
@@ -34,7 +34,6 @@ configure :development, :production do
 end
 
 before do
-    @sessionId = session[:id]
 end
 # Handle potential connection pool timeout issues
 after do
@@ -74,38 +73,52 @@ end
 # Routes
 ###########################################################
 
+get '/login' do
+    erb :login
+end
+
+post '/login' do
+    username = params[:username]
+    password = params[:password]
+    user = User.find_by_username(username)
+
+    if user
+        password_salt = user.password_salt
+        password_hash = user.password_hash
+    end
+
+    if(password_hash && password_hash == hashingFunc(password, password_salt))
+        session[:id] = password_hash
+        redirect to '/'
+    else
+        puts 'wrong login info'
+        redirect '/login'
+    end
+end
+
 post '/createAccount' do
     password_salt = 'abc'
     password_hash = hashingFunc(params[:password], password_salt)
     User.create(username: params[:username], password_hash: password_hash, password_salt: password_salt, hashId: 'a')
     session[:id] = password_hash
     # session
-    password_hash
+    redirect to '/'
 end
 
-post '/login' do
-    puts 'hello'
-end
-
-get '/login' do
-    erb :login
-end
-
-
-get '/', :auth => :user do
+get '/', :loggin_in? => :user do
     puts session[:id].inspect
     # puts request.cookies
     erb :index
 end
 
-get '/links' do
+get '/links', :loggin_in? => :user do
     links = Link.order("visits DESC")
     links.map { |link|
         link.as_json.merge(base_url: request.base_url)
     }.to_json
 end
 
-post '/links' do
+post '/links', :loggin_in? => :user do
     data = JSON.parse request.body.read
     if /^http:\/\//.match data['url']
       data = data['url']
@@ -120,13 +133,22 @@ post '/links' do
     link.as_json.merge(base_url: request.base_url).to_json
 end
 
-get '/:url' do
+get '/clicks/:code' do
+    link = Link.find_by_code(params[:code])
+    puts link.title
+    puts link.id
+    clicks = Click.where(link_id: link.id)
+    clicks.to_json
+end
+
+get '/:url', :loggin_in? => :user do
     link = Link.find_by_code params[:url]
     raise Sinatra::NotFound if link.nil?
     link.update_attribute(:lastclicked, Time.new.to_i)
     link.clicks.create!
     redirect link.url
 end
+
 
 ###########################################################
 # Utility
