@@ -135,14 +135,16 @@ end
 
 get '/clicks/:code' do
     link = Link.find_by_code(params[:code])
-    puts link.title
-    puts link.id
     clicks = Click.where(link_id: link.id)
+
+    # { "title" => link.title, "clickData" => clicks.to_json }
+    # clicks.as_json.merge(title: link.title).to_json
+    puts clicks.to_json
     clicks.to_json
 end
 
 get '/details/:code' do
-    erb :layout
+    erb :index
     # erb :index
 end
 
