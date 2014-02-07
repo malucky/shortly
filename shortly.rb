@@ -136,10 +136,6 @@ end
 get '/clicks/:code' do
     link = Link.find_by_code(params[:code])
     clicks = Click.where(link_id: link.id)
-
-    # { "title" => link.title, "clickData" => clicks.to_json }
-    # clicks.as_json.merge(title: link.title).to_json
-    puts clicks.to_json
     clicks.to_json
 end
 
@@ -154,6 +150,11 @@ get '/:url', :loggin_in? => :user do
     link.update_attribute(:lastclicked, Time.new.to_i)
     link.clicks.create!
     redirect link.url
+end
+
+get '/title/:code', :loggin_in? => :user do
+    link = Link.find_by_code params[:code]
+    link.title
 end
 
 

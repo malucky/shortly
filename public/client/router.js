@@ -30,14 +30,20 @@ Shortly.Router = Backbone.Router.extend({
     var origin = window.location.origin;
     var clickDataUrl = origin+'/clicks'+code;
 
-    var clicks = new Shortly.Clicks();
-    clicks.url = clickDataUrl;
     var that = this;
-    clicks.fetch({success: function(){
-      // console.log(clicks.model[0]);
-      // console.log(clicks.model[0].get('title'));
-      var clicksView = new Shortly.ClicksView({collection: clicks});
-      that.$el.html(clicksView.render('TITLE').el);
-    }});
+    this.getTitle(code, function(title){
+      var clicks = new Shortly.Clicks();
+      clicks.url = clickDataUrl;
+      clicks.fetch({success: function(){
+        var clicksView = new Shortly.ClicksView({collection: clicks});
+        that.$el.html(clicksView.render(title).el);
+      }});
+    });
+  },
+
+  getTitle: function(code, cb) {
+    $.get( "/title"+code, function( title ) {
+      cb(title);
+    });
   }
 });

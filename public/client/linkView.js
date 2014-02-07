@@ -32,7 +32,7 @@ Shortly.LinkView = Backbone.View.extend({
 
   triggerClickViewRender: function(e){
     e.preventDefault();
-    this.model.trigger('renderClickView', this.model.get('code'));
+    this.model.trigger('renderClickView', this.model.get('code'), this.model.get('title'));
   }
 
 });
